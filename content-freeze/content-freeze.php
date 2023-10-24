@@ -2,11 +2,11 @@
 
 /**
  * Plugin Name: Content Freeze
- * Plugin URI: https://kaleidico.com
+ * Plugin URI: https://hrefcreative.com
  * Description: Displays a content freeze alert in the WordPress dashboard.
  * Version: 1.0
  * Author: Angelo Marasa
- * Author URI: https://kaleidico.com
+ * Author URI: https://hrefcreative.com
  * License: GPL2
  */
 
