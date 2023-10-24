@@ -2,11 +2,11 @@
 
 /**
  * Plugin Name: Content Freeze
- * Plugin URI: https://hrefcreative.com
+ * Plugin URI: https://kaleidico.com
  * Description: Displays a content freeze alert in the WordPress dashboard.
  * Version: 1.0
  * Author: Angelo Marasa
- * Author URI: https://hrefcreative.com
+ * Author URI: https://kaleidico.com
  * License: GPL2
  */
 
@@ -33,11 +33,12 @@ function cfa_display_modal()
     // Check if the alert is enabled in the settings
     $is_enabled = get_option('cfa_enabled', '1');
 
-    // Check if the user is on the dashboard, if the cookie is not set, and if the alert is enabled
-    if (current_user_can('manage_options') && !isset($_COOKIE['cfa_hide_alert']) && $is_enabled === '1') {
+    // Check if the user is on the dashboard and if the alert is enabled
+    if (!isset($_COOKIE['cfa_hide_alert']) && $is_enabled === '1') {
         include plugin_dir_path(__FILE__) . 'includes/modal.php';
     }
 }
+
 
 add_action('admin_footer', 'cfa_display_modal');
 
@@ -81,15 +82,27 @@ function cfa_render_options_page()
 }
 
 // Register the settings
+// Register the settings
 function cfa_register_settings()
 {
     register_setting('cfa_settings_group', 'cfa_enabled');
+    register_setting('cfa_settings_group', 'cfa_special_user');  // Register special user setting here
+    register_setting('cfa_settings_group', 'cfa_custom_message');
 
     add_settings_section(
         'cfa_settings_section',
         'General Settings',
         'cfa_render_settings_section',
         'content-freeze-alert'
+    );
+
+    // Add the special user field here
+    add_settings_field(
+        'cfa_special_user',
+        'Select Special User',
+        'cfa_render_special_user_field',
+        'content-freeze-alert',
+        'cfa_settings_section'
     );
 
     add_settings_field(
@@ -99,7 +112,17 @@ function cfa_register_settings()
         'content-freeze-alert',
         'cfa_settings_section'
     );
+
+    add_settings_field(
+        'cfa_custom_message',
+        'Custom Modal Message',
+        'cfa_render_custom_message_field',
+        'content-freeze-alert',
+        'cfa_settings_section'
+    );
 }
+add_action('admin_init', 'cfa_register_settings');
+
 add_action('admin_init', 'cfa_register_settings');
 
 // Render the settings section
@@ -146,3 +169,80 @@ function cfa_check_option_update($option, $old_value, $new_value)
     }
 }
 add_action('update_option', 'cfa_check_option_update', 10, 3);
+
+function cfa_restrict_user_capabilities($allcaps, $caps, $args, $user)
+{
+    // Check if the content freeze is enabled
+    $is_enabled = get_option('cfa_enabled', '1');
+
+    // Get the special user ID from the settings
+    $special_user_id = get_option('cfa_special_user', '');
+
+    // Check if the current user is the special user
+    $is_special_user = ($user->ID == $special_user_id);
+
+    // If content freeze is enabled and the user is not special, restrict capabilities
+    if ($is_enabled === '1' && !$is_special_user) {
+        foreach ($allcaps as $cap => $value) {
+            if ($cap != 'read') {
+                unset($allcaps[$cap]);
+            }
+        }
+    }
+
+    return $allcaps;
+}
+
+
+add_filter('user_has_cap', 'cfa_restrict_user_capabilities', 10, 4);
+
+function cfa_dashboard_widget_content()
+{
+    // Get the custom message from the settings, if available
+    $custom_message = get_option('cfa_custom_message', 'Content is currently frozen. Please do not make any changes.');
+
+    echo '<div class="cfa-dashboard-widget">';
+    echo wp_kses_post($custom_message);
+    echo '</div>';
+}
+
+function cfa_add_dashboard_widget()
+{
+    // Check if the content freeze is enabled
+    $is_enabled = get_option('cfa_enabled', '1');
+
+    if ($is_enabled === '1') {
+        wp_add_dashboard_widget(
+            'cfa_dashboard_widget',         // Widget slug
+            'Content Freeze',               // Title
+            'cfa_dashboard_widget_content'  // Display function
+        );
+    }
+}
+
+add_action('wp_dashboard_setup', 'cfa_add_dashboard_widget');
+
+// Register the special user setting
+function cfa_register_special_user_setting()
+{
+    register_setting('cfa_settings_group', 'cfa_special_user');
+    add_settings_field(
+        'cfa_special_user',
+        'Select Special User',
+        'cfa_render_special_user_field',
+        'content-freeze-alert',
+        'cfa_settings_section'
+    );
+}
+add_action('admin_init', 'cfa_register_special_user_setting');
+
+// Render the user dropdown field
+function cfa_render_special_user_field()
+{
+    $selected_user = get_option('cfa_special_user', '');
+    wp_dropdown_users(array(
+        'name' => 'cfa_special_user',
+        'selected' => $selected_user,
+        'show_option_none' => '— Select a User —'
+    ));
+}
