@@ -4,7 +4,7 @@
  * Plugin Name: Content Freeze
  * Plugin URI: https://kaleidico.com
  * Description: Displays a content freeze alert in the WordPress dashboard.
- * Version: 2.0
+ * Version: 2.2
  * Author: Angelo Marasa
  * Author URI: https://kaleidico.com
  * License: GPL2
