@@ -22,6 +22,9 @@ No, only the admin account you select while enabling the content freeze will be 
 
 == Changelog ==
 
+= 2.3 = 
+* When the plugin is activated, it will start off with the content freeze being disabled. This prevents the plugin from locking out every user, since an admin isn't set at this time to control who gets to manage the content freeze status.
+
 = 2.2 = 
 * Added plugin update functionality
 

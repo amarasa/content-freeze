@@ -4,7 +4,7 @@
  * Plugin Name: Content Freeze
  * Plugin URI: https://kaleidico.com
  * Description: Displays a content freeze alert in the WordPress dashboard.
- * Version: 2.2
+ * Version: 2.3
  * Author: Angelo Marasa
  * Author URI: https://kaleidico.com
  * License: GPL2
@@ -19,11 +19,11 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 $myUpdateChecker = PucFactory::buildUpdateChecker(
     'https://github.com/amarasa/content-freeze',
     __FILE__,
-    'content-freeze-helper'
+    'content-freeze'
 );
 
 //Set the branch that contains the stable release.
-$myUpdateChecker->setBranch('stable-branch-name');
+//$myUpdateChecker->setBranch('stable-branch-name');
 
 //Optional: If you're using a private repository, specify the access token like this:
 // $myUpdateChecker->setAuthentication('your-token-here');
@@ -31,6 +31,15 @@ $myUpdateChecker->setBranch('stable-branch-name');
 /* -------------------------------------------------------------------------------------- */
 
 include plugin_dir_path(__FILE__) . 'includes/functions.php';
+
+
+
+function cfa_set_default_options()
+{
+    add_option('cfa_enabled', '0');  // Set to '0' to disable by default
+}
+
+register_activation_hook(__FILE__, 'cfa_set_default_options');
 
 
 // Enqueue the necessary scripts and styles
