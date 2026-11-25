@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Get the checkbox
 	var hideCheckbox = document.getElementById("cfaHideCheckbox");
 
+	// The modal markup is only printed when the freeze notice applies
+	if (!modal) {
+		return;
+	}
+
 	// Display the modal
 	modal.style.display = "block";
 
@@ -17,14 +22,18 @@ document.addEventListener("DOMContentLoaded", function () {
 		modal.style.display = "none";
 
 		// If the checkbox is checked, set the cookie to hide the modal for 24 hours
-		if (hideCheckbox.checked) {
+		if (hideCheckbox && hideCheckbox.checked) {
 			setHideCookie();
 		}
 	}
 
 	// When the user clicks on the close buttons, close the modal
-	closeButton.onclick = closeModal;
-	closeButtonFooter.onclick = closeModal;
+	if (closeButton) {
+		closeButton.onclick = closeModal;
+	}
+	if (closeButtonFooter) {
+		closeButtonFooter.onclick = closeModal;
+	}
 
 	// Function to set the cookie via AJAX
 	function setHideCookie() {

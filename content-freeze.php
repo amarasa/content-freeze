@@ -4,7 +4,7 @@
  * Plugin Name: Content Freeze
  * Plugin URI: https://kaleidico.com
  * Description: Displays a content freeze alert in the WordPress dashboard.
- * Version: 2.3
+ * Version: 2.4
  * Author: Angelo Marasa
  * Author URI: https://kaleidico.com
  * License: GPL2
@@ -46,7 +46,13 @@ register_activation_hook(__FILE__, 'cfa_set_default_options');
 function cfa_enqueue_scripts()
 {
     wp_enqueue_style('cfa-styles', plugin_dir_url(__FILE__) . 'assets/css/style.css');
-    wp_enqueue_script('cfa-scripts', plugin_dir_url(__FILE__) . 'assets/js/script.js', array('jquery'), '1.0.0', true);
+
+    // Only load the script where the modal is printed (same condition as cfa_display_modal)
+    if (isset($_COOKIE['cfa_hide_alert']) || get_option('cfa_enabled', '1') !== '1') {
+        return;
+    }
+
+    wp_enqueue_script('cfa-scripts', plugin_dir_url(__FILE__) . 'assets/js/script.js', array('jquery'), '2.4', true);
 
     // Pass ajax_url to script.js
     wp_localize_script('cfa-scripts', 'cfa_params', array(
